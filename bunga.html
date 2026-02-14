@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Sacred Lotus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,400&display=swap" rel="stylesheet">
+    <style>
+        /* --- LAYOUT MOBILE FRIENDLY --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #050000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            height: 100dvh; /* Untuk browser mobile modern */
+            color: #d4af37;
+            font-family: 'Cinzel', serif;
+            overflow: hidden;
+        }
+
+        /* Container agar canvas di tengah */
+        #canvas-wrapper {
+            position: relative;
+            width: 100%;
+            height: 65vh; /* Mengambil 65% tinggi layar */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            background: transparent;
+            z-index: 2;
+        }
+
+        /* Efek Cahaya di belakang bunga */
+        .glow {
+            position: absolute;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(100, 0, 20, 0.3) 0%, rgba(0, 0, 0, 0) 70%);
+            border-radius: 50%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .math-eq {
+            margin-top: 10px;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1rem;
+            color: rgba(212, 175, 55, 0.6);
+            opacity: 0;
+            animation: fadeIn 2s forwards 0.5s;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .next-btn {
+            margin-top: 20px;
+            padding: 12px 35px;
+            background: rgba(20, 0, 0, 0.6);
+            border: 1px solid #d4af37;
+            color: #d4af37;
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            letter-spacing: 2px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+            text-decoration: none;
+            border-radius: 50px;
+            z-index: 10;
+        }
+
+        .next-btn:hover {
+            background: #500000;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+            color: #fff;
+        }
+
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-wrapper">
+        <div class="glow"></div>
+        <canvas id="lotusCanvas"></canvas>
+    </div>
+
+    <div class="math-eq">
+        r = |cos(kθ)| + Layering &nbsp;|&nbsp; Sacred Geometry
+    </div>
+
+    <a href="Maroon.pdf" class="next-btn" id="btnBook">OPEN YOUR BOOK</a>
+
+    <script>
+        const canvas = document.getElementById("lotusCanvas");
+        const ctx = canvas.getContext("2d");
+        const btn = document.getElementById("btnBook");
+
+        // --- VARIABEL UKURAN RESPONSIF ---
+        let width, height, centerX, centerY, baseRadius;
+
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight * 0.65; // Canvas setinggi 65% layar
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            centerX = width / 2;
+            centerY = height / 2;
+            
+            // Radius bunga menyesuaikan layar terkecil (agar muat di HP portrait)
+            baseRadius = Math.min(width, height) * 0.45; 
+        }
+        
+        // Panggil saat load & saat layar diputar
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // --- VARIABEL MATEMATIKA (BENTUK LOTUS LAMA) ---
+        const k1 = 6;  // Kelopak Utama
+        const k2 = 12; // Kelopak Detail
+        
+        let theta = 0;
+        const maxTheta = Math.PI * 12; // 6 putaran penuh untuk kepadatan layer
+        const step = 0.005; // Resolusi (kehalusan)
+
+        // --- PENGATURAN KECEPATAN ---
+        // Menggambar 25 titik sekaligus per frame (Sangat Cepat & Halus)
+        const speedMultiplier = 10; 
+
+        ctx.lineWidth = 1.2;
+        ctx.globalCompositeOperation = 'screen'; // Efek blending neon
+
+        let lastX = 0, lastY = 0;
+        let isFirstPoint = true;
+
+        function drawLotus() {
+            // Loop untuk mempercepat animasi
+            for (let i = 0; i < speedMultiplier; i++) {
+                
+                if (theta > maxTheta) {
+                    finishAnimation();
+                    return;
+                }
+
+                // --- RUMUS LOTUS BERLAPIS (YANG ANDA SUKAI) ---
+                // Menggunakan Math.abs() pada cosinus agar kelopak "gemuk" dan berlapis
+                
+                // Layer 1 (Besar)
+                const r1 = baseRadius * Math.abs(Math.cos(k1/2 * theta));
+                
+                // Layer 2 (Variasi Kecil)
+                const r2 = (baseRadius * 0.5) * Math.abs(Math.sin(k2/2 * theta));
+
+                // Gabungan Radius
+                const r = r1 + (r2 * 0.2); 
+
+                // Konversi ke Koordinat XY
+                const x = centerX + r * Math.cos(theta);
+                const y = centerY + r * Math.sin(theta);
+
+                // --- PEWARNAAN ---
+                // Hitung seberapa jauh dari pusat (0.0 sampai 1.0)
+                const normalizedR = r / baseRadius;
+
+                // Warna: Pusat Emas (45) -> Pinggir Pink/Maroon (330)
+                // Kita buat gradasinya lebih dramatis
+                const hue = 40 + (normalizedR * 290); 
+                
+                // Transparansi (alpha) lebih rendah di pinggir agar terlihat halus
+                const alpha = 0.4 + (normalizedR * 0.6); 
+                
+                const color = `hsla(${hue}, 85%, 60%, ${alpha})`;
+
+                // Mulai menggambar garis
+                if (isFirstPoint) {
+                    lastX = x; lastY = y;
+                    isFirstPoint = false;
+                } else {
+                    ctx.beginPath();
+                    ctx.strokeStyle = color;
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                }
+
+                lastX = x;
+                lastY = y;
+                theta += step;
+            }
+
+            // Lanjut ke frame berikutnya
+            requestAnimationFrame(drawLotus);
+        }
+
+        function finishAnimation() {
+            // Beri efek glow final
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#d4af37";
+            
+            // Munculkan tombol
+            btn.classList.add("visible");
+        }
+
+        // Mulai animasi
+        setTimeout(() => {
+            // Reset posisi awal pena agar tidak ada garis 'glitch'
+            const startR = baseRadius * Math.abs(Math.cos(0));
+            lastX = centerX + startR;
+            lastY = centerY;
+            isFirstPoint = true;
+            
+            drawLotus();
+        }, 500);
+
+    </script>
+</body>
+</html>

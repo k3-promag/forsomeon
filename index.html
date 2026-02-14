@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muse | Valentine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- 1. SETUP VARIABEL WARNA & DASAR --- */
+        :root {
+            --bg-maroon: #2a0a0a; /* Maroon sangat gelap hampir hitam */
+            --accent-maroon: #5e1111; /* Maroon kemerahan */
+            --text-gold: #d4c4a8; /* Emas pucat */
+            --text-white: #e0e0e0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-maroon);
+            color: var(--text-gold);
+            font-family: 'Cormorant Garamond', serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* --- 2. ARTISTIC BACKGROUND (Ornamen Seni) --- */
+        .noise-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            opacity: 0.15;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Lingkaran abstrak & Garis */
+        .art-circle {
+            position: absolute;
+            border: 1px solid rgba(212, 196, 168, 0.1);
+            border-radius: 50%;
+            z-index: -2;
+        }
+        .c1 { width: 60vh; height: 60vh; top: -10vh; right: -10vh; }
+        .c2 { width: 40vh; height: 40vh; bottom: -5vh; left: -5vh; border-color: rgba(94, 17, 17, 0.3); }
+        
+        .art-line {
+            position: absolute;
+            background: rgba(212, 196, 168, 0.1);
+            z-index: -2;
+        }
+        .l1 { width: 1px; height: 100vh; left: 20%; top: 0; }
+        .l2 { width: 100vw; height: 1px; top: 85%; left: 0; }
+
+        /* --- 3. CONTAINER SLIDE --- */
+        .content-wrapper {
+            width: 85%;
+            max-width: 600px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .slide {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            animation: fadeEffect 1.5s ease;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeEffect {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- 4. TYPOGRAPHY & IMAGES --- */
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            letter-spacing: 5px;
+            margin-bottom: 30px;
+            font-weight: 400;
+            color: var(--text-gold);
+            border-bottom: 1px solid rgba(212, 196, 168, 0.3);
+            padding-bottom: 15px;
+            display: inline-block;
+        }
+
+        .photo-frame {
+            width: 280px;
+            height: 350px;
+            object-fit: cover;
+            /* Style Minimalis: Tanpa border tebal, hanya shadow halus */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6); 
+            margin-bottom: 30px;
+            filter: sepia(20%) contrast(110%); /* Efek vintage sedikit */
+            transition: transform 0.5s ease;
+        }
+        
+        .photo-frame:hover {
+            transform: scale(1.02);
+        }
+
+        .text-area {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            font-style: italic;
+            color: rgba(255,255,255,0.8);
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        .small-symbol {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--accent-maroon);
+            font-family: 'Cinzel', serif;
+        }
+
+        /* --- 5. GALLERY (SLIDE TERAKHIR) --- */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .gallery-item {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            opacity: 0.8;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .gallery-item:hover {
+            opacity: 1;
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        /* --- 6. NAVIGATION (MINIMALIS) --- */
+        .nav-container {
+            position: absolute;
+            bottom: 40px;
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+        
+        .nav-arrow {
+            background: none;
+            border: none;
+            color: var(--text-gold);
+            font-size: 1.2rem;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            opacity: 0.6;
+            transition: 0.3s;
+            letter-spacing: 2px;
+        }
+        
+        .nav-arrow:hover { opacity: 1; letter-spacing: 4px;}
+        
+        .page-indicator {
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            opacity: 0.4;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="noise-overlay"></div>
+    <div class="art-circle c1"></div>
+    <div class="art-circle c2"></div>
+    <div class="art-line l1"></div>
+    <div class="art-line l2"></div>
+
+    <div class="content-wrapper">
+
+        <div class="slide active">
+            <div class="small-symbol">I.</div>
+            <h1>The Muse</h1>
+            <img src="IMG-20260131-WA0012.jpg" class="photo-frame">
+            <p class="text-area">
+                "In a gallery full of art, I would still stare at you."<br>
+                Sebuah apresiasi kecil untukmu di hari Valentine ini.
+            </p>
+        </div>
+
+        <div class="slide">
+            <div class="small-symbol">II.</div>
+            <h1>Auditory</h1>
+            <img src="WhatsApp Image 2026-02-14 at 12.45.20.jpeg" class="photo-frame">
+            <p class="text-area">
+                Seperti melodi Chase Atlantic di tengah malam.<br>
+                Gelap, misterius, namun selalu membuatku ingin kembali mendengarnya.
+            </p>
+        </div>
+
+
+        <div class="slide">
+            <div class="small-symbol">II.</div>
+            <h1>The artist</h1>
+            <img src="IMG-20260213-WA0016.jpg" class="photo-frame">
+            <p class="text-area">
+                Kreativitas tanpa batas serta imajinasi yang sungguh elok.<br>
+                Seni mu seperti suatu ekspresi mendalam yang di keluarkan langsung dari belahan jiwa.
+                
+                <br>
+            </p>
+        </div>
+
+        <div class="slide">
+            <div class="small-symbol">Ψ</div>
+            <h1>The Mind</h1>
+            <img src="Img_2025_11_05_09_01_30.jpeg" class="photo-frame">
+            <p class="text-area">
+                Caramu memandang dunia dengan kacamata Psikologi selalu membuatku kagum.<br>
+                You analyze minds, but you stole my heart.
+            </p>
+        </div>
+
+        <div class="slide">
+            <div class="small-symbol">🏏</div>
+            <h1>Passion</h1>
+            <img src="Img_2025_11_05_04_32_28.jpeg" class="photo-frame">
+            <p class="text-area">
+                Di lapangan atau di kehidupan, semangatmu tak tertandingi.<br>
+                Your energy is my favorite thing to witness.
+            </p>
+        </div>
+
+        <div class="slide">
+            <div class="small-symbol">IV.</div>
+            <h1>Comfort</h1>
+            <img src="IMG-20260112-WA0011.jpg" class="photo-frame">
+            <p class="text-area">
+                Susu putih yang menenangkan, dan Nasi Padang yang penuh rasa.<br>
+                Hal-hal sederhana yang membuatmu bahagia, membuatku bahagia juga.
+            </p>
+        </div>
+
+        <div class="slide">
+            <div class="small-symbol">11:11</div>
+            <h1>Destiny</h1>
+            <img src="IMG-20260117-WA0016.jpg" class="photo-frame">
+            <p class="text-area">
+                Angka 11 bukan lagi sekadar angka.<br>
+                Itu adalah pengingat bahwa semesta berkonspirasi untuk mempertemukan kita.
+            </p>
+        </div>
+
+        <div class="slide">
+            <h1>Her Universe</h1>
+            <p class="text-area" style="font-size: 0.9rem; margin-bottom: 20px;">
+                Kumpulan hal-hal yang kamu sukai, dan hal yang aku sukai (itu kamu).
+            </p>
+            
+            <div class="gallery-grid">
+                <img src="Img_2025_11_10_19_03_39.jpeg" class="gallery-item">
+                <img src="Screenshot_20251210-125220_Minecraft~2.jpg" class="gallery-item">
+                <img src="IMG-20260210-WA0014.jpg" class="gallery-item">
+                <img src="IMG-20260214-WA0012.jpg" class="gallery-item">
+                <img src="Img_2025_11_03_00_04_26.jpeg" class="gallery-item">
+                <img src="ee97def57b208ba7509c9f0e5d5bc5cf.jpg" class="gallery-item">
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="small-symbol">💌</div>
+            <h1>Letter for Jehan Aiko</h1>
+            <p class="text-area" style="margin-bottom: 20px;">
+The day will come<br>
+When my body no longer exists<br>
+But in the lines of this poem<br>
+I will never let you be alone<br>
+<br>
+The day will come<br>
+When my voice is no longer heard<br>
+But within the words of this poem<br>
+I will continue to watch over you<br>
+<br>
+The day will come<br>
+When my dreams are no longer known<br>
+But in the spaces found in the letters of this poem<br>
+I will never tired of looking for you</p>
+        </div>
+
+        <div class="slide">
+    <div class="small-symbol">∞</div>
+    <h1>The Final Variable</h1>
+    <p class="text-area" style="margin-bottom: 40px;">
+        Ada satu hal lagi. Sebuah representasi logis dari perasaanku.<br>
+        Bukan dengan kata-kata, tapi dengan persamaan yang abadi.
+    </p>
+    
+    <a href="bunga.html" target="_blank" style="text-decoration: none;">
+        <button style="
+            background: transparent;
+            border: 1px solid var(--text-gold);
+            color: var(--text-gold);
+            padding: 15px 40px;
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            letter-spacing: 3px;
+            transition: 0.4s;
+            border-radius: 50px;
+        " onmouseover="this.style.background='var(--accent-maroon)'; this.style.borderColor='var(--accent-maroon)'"
+          onmouseout="this.style.background='transparent'; this.style.borderColor='var(--text-gold)'">
+            OPEN SURPRISE
+        </button>
+    </a>
+</div>
+
+    </div>
+
+    <div class="nav-container">
+        <button class="nav-arrow" onclick="moveSlide(-1)">PREV</button>
+        <span class="page-indicator" id="indicator">01 / 07</span>
+        <button class="nav-arrow" onclick="moveSlide(1)">NEXT</button>
+    </div>
+
+    <script>
+        let slideIndex = 0;
+        const slides = document.querySelectorAll(".slide");
+        const indicator = document.getElementById("indicator");
+
+        function updateSlide() {
+            // Sembunyikan semua slide
+            slides.forEach(slide => slide.classList.remove("active"));
+            
+            // Tampilkan slide saat ini
+            slides[slideIndex].classList.add("active");
+
+            // Update indikator angka (01 / 07)
+            let num = slideIndex + 1;
+            indicator.innerText = "0" + num + " / 0" + slides.length;
+        }
+
+        function moveSlide(n) {
+            slideIndex += n;
+            
+            if (slideIndex >= slides.length) {
+                slideIndex = 0; // Loop ke awal
+            }
+            if (slideIndex < 0) {
+                slideIndex = slides.length - 1; // Loop ke akhir
+            }
+            
+            updateSlide();
+        }
+
+        // Jalankan saat awal
+        updateSlide();
+    </script>
+
+<audio id="bgMusic" loop>
+    <source src="music.mp3" type="audio/mpeg">
+    Browser tidak support audio.
+</audio>
+
+<div class="music-control" onclick="toggleMusic()">
+    🔊 Music: Off
+</div>
+
+<style>
+    .music-control {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        color: #d4af37; /* Warna Emas */
+        border: 1px solid #d4af37;
+        padding: 8px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.8rem;
+        background: rgba(0,0,0,0.5);
+        transition: 0.3s;
+    }
+    .music-control:hover {
+        background: #500000;
+        color: white;
+    }
+</style>
+
+<script>
+    const music = document.getElementById('bgMusic');
+    const btnMusic = document.querySelector('.music-control');
+    let isPlaying = false;
+
+    function toggleMusic() {
+        if (isPlaying) {
+            music.pause();
+            btnMusic.innerHTML = "🔇 Music: Paused";
+            isPlaying = false;
+        } else {
+            music.play();
+            btnMusic.innerHTML = "🔊 Music: On";
+            isPlaying = true;
+        }
+    }
+
+    // Trik agar musik nyala saat dia klik APAPUN pertama kali di layar
+    document.body.addEventListener('click', function() {
+        if (!isPlaying) {
+            music.play();
+            btnMusic.innerHTML = "🔊 Music: On";
+            isPlaying = true;
+        }
+    }, { once: true }); // Hanya jalan sekali
+</script>
+
+
+</body>
+</html>
